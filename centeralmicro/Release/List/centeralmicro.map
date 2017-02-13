@@ -1,0 +1,78 @@
+RAM Allocation [bytes]
+Variable                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+prevLet                                                                           0x03C2       2
+stat                                                                              0x03C4       1
+prevX                                                                             0x03C5       1
+prevY                                                                             0x03C6       1
+edit_window_pattern                                                               0x03C7      32
+activate_window_pattern_no                                                        0x03E7       1
+edit_window_selected                                                              0x03E8       1
+activate_window_selected                                                          0x03E9       1
+activate_window_mode                                                              0x03EA       1
+main_window_selected                                                              0x03EB       1
+_seed                                                                             0x03EC       4
+
+EEPROM Allocation [bytes]
+Variable                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+pattern                                                                           0x0000     256
+pattern_no                                                                        0x0100       1
+
+Register Allocation
+Variable                                                                          Register  Size
+------------------------------------------------------------------------------------------------
+temp                                                                              R5           1
+keypad_handler                                                                    R6,R7        2
+button_handler                                                                    R8,R9        2
+temp_window_byte                                                                  R4           1
+temp_window_selected                                                              R11          1
+temp_window_range_small                                                           R10          1
+temp_window_range_large                                                           R13          1
+edit_window_block_no                                                              R12          1
+
+FLASH Allocation [words]
+Function                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+trigger                                                                           0x00672      9
+goto_col                                                                          0x0067B     28
+goto_row                                                                          0x00697     13
+goto_xy                                                                           0x006A4     10
+glcd_write                                                                        0x006AE     10
+glcd_clrln                                                                        0x006B8     29
+glcd_clear                                                                        0x006D5     16
+glcd_read                                                                         0x006E5     47
+point_at                                                                          0x00714     42
+h_line                                                                            0x0073E     29
+v_line                                                                            0x0075B     26
+rectangle                                                                         0x00775     32
+putIt                                                                             0x00795     22
+enlarge                                                                           0x007AB     40
+putItSz                                                                           0x007D3    119
+glcd_putchar                                                                      0x0084A    136
+glcd_puts                                                                         0x008D2    173
+temp_window_keypad                                                                0x0097F     87
+temp_window_button                                                                0x009D6    149
+temp_window                                                                       0x00A6B     56
+edit_window_menu_button                                                           0x00AA3    149
+edit_window_menu                                                                  0x00B38     51
+edit_window_button                                                                0x00B6B    386
+edit_window_keypad                                                                0x00CED     65
+edit_window                                                                       0x00D2E    377
+activate_window_keypad                                                            0x00EA7     40
+activate_window_button                                                            0x00ECF     85
+activate_window                                                                   0x00F24     68
+debug_window_button                                                               0x00F68      6
+debug_window                                                                      0x00F6E    234
+main_window_button                                                                0x01058     81
+main_window                                                                       0x010A9     89
+main                                                                              0x01102     40
+usart_rxc_isr                                                                     0x0112A     35
+ext_int0_isr                                                                      0x0114D     28
+ext_int1_isr                                                                      0x01169     81
+send_pattern                                                                      0x011BA     67
+put_buff_G100                                                                     0x011FD     58
+_print_G100                                                                       0x01237    308
+sprintf                                                                           0x0136B     52
+strlen                                                                            0x0139F     12
+strlenf                                                                           0x013AB     13

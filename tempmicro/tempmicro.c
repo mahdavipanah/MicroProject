@@ -1,0 +1,170 @@
+#include <mega8.h>
+#include <interrupt.h>
+#include <alcd.h>
+#include <stdio.h>
+#include <string.h>
+
+#define SIMULATION
+
+#ifdef SIMULATION
+    #define TIMER_COUNT -5000
+#else
+    #define TIMER_COINT -31250
+#endif
+
+eeprom char _range_small, _range_large;
+char range_small, range_large;
+
+// Current temperature
+char temp;
+// Is 1 if lcd needs to be updated
+char update_lcd = 0;
+
+inline void update_and_send_temp(void)
+{
+    ADCSRA.ADSC = 1;
+    while (ADCSRA.ADIF == 0);
+    temp = ADCH;
+    while (UCSRA.UDRE == 0);
+    UDR = temp;
+}
+
+
+void main(void)
+{
+    /*
+        Gives ranges initial value
+    */
+    if (_range_small == 0xFF) {
+        _range_small = 27;
+        _range_large = 30;
+    }
+
+    range_small = _range_small;
+    range_large = _range_large;
+
+    /*
+        Port initialize
+    */
+    DDRB = 0b11110011;
+
+    DDRD = 0x1A;
+
+    DDRC |= 0b0111110;
+
+    /*
+        ADC Initialize
+    */
+    ADCSRA = 0x87;
+    ADMUX = 0xE0;
+
+    /*
+        Timer1 initialize
+    */
+    TCNT1 = TIMER_COUNT;
+    TCCR1A = 0; // Timer1 normal mode
+    TCCR1B = 0x04; // int clk, prescale 1:256
+    TIMSK = (1<<TOIE1); // Enables timer1 overflow interrupt
+
+    /*
+        USART initialize
+    */
+    UCSRB = (1<<RXEN) | (1<<RXCIE) | (1<<TXEN);
+    UCSRC = (1<<UCSZ1)|(1<<UCSZ0)|(1<<URSEL);
+    UBRRL = 0x33;
+
+    sei();
+
+    /*
+        LCD Initialize
+    */
+    lcd_init(16);
+    lcd_putsf("Temperature: \nRange: ");
+
+
+    while (1) {
+        if (update_lcd) {
+            char buffer[9];
+
+            sprintf(buffer, "%2d ", temp);
+            lcd_gotoxy(13, 0);
+            lcd_puts(buffer);
+
+            sprintf(buffer, "%2d - %2d", range_small, range_large);
+            lcd_gotoxy(7, 1);
+            lcd_puts(buffer);
+
+            cli();
+                update_lcd--;
+            sei();
+        }
+    }
+}
+
+
+/*
+    USART recieve complete interrupt service routine
+*/
+interrupt [USART_RXC]
+void usart_rxc_isr(void)
+{
+    char udr = UDR;
+
+    // centeralmicro is sending ranges
+    if ((udr & 0xF0) == 0x30)
+    {
+        char tmp;
+
+        // small range byte
+        while (UCSRA.RXC == 0);
+        range_small = UDR;
+        // large range command
+        while (UCSRA.RXC == 0);
+        tmp = UDR;
+        // large range byte
+        while (UCSRA.RXC == 0);
+        range_large = UDR;
+
+        _range_small = range_small;
+        _range_large = range_large;
+
+        update_lcd++;
+    }
+    // centeralmicro is sending a lightmicro selection
+    else if((udr & 0b10000001) == 0b10000001) {
+        udr &= 0b01111000;
+        udr <<= 1;
+        PORTB &= 0x0F;
+        PORTB |= udr;
+    }
+}
+
+
+/*
+    Timer1 overflow interrupt service routine
+*/
+interrupt [TIM1_OVF]
+void tim1_ovf_isr(void)
+{
+    update_and_send_temp();
+
+    /*
+        Heater
+    */
+    if (temp <  range_small)
+        PORTB.0 = 1;
+    else
+        PORTB.0 = 0;
+    /*
+        A/C
+    */
+    if (temp > range_large)
+        PORTB.1 = 1;
+    else
+        PORTB.1 = 0;
+
+    update_lcd++;
+
+    // Restart timer1
+    TCNT1 = TIMER_COUNT;
+}

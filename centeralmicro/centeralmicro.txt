@@ -1,0 +1,7 @@
+/*{
+    char s[17];
+    glcd_clear();
+    sprintf(s, "%d %d", pattern[0][0][0], pattern[0][0][1]);
+    glcd_puts(s, 0, 0, 0, 1, 0);
+    return;
+}*/

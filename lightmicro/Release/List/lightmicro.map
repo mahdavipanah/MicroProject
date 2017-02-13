@@ -1,0 +1,23 @@
+RAM Allocation [bytes]
+Variable                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+
+EEPROM Allocation [bytes]
+Variable                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+pattern                                                                           0x0000      16
+pattern_no                                                                        0x0010       1
+
+Register Allocation
+Variable                                                                          Register  Size
+------------------------------------------------------------------------------------------------
+usart_mode                                                                        R5           1
+usart_byte_no                                                                     R4           1
+edit_pattern_no                                                                   R7           1
+
+FLASH Allocation [words]
+Function                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+main                                                                              0x00045     25
+update_led_ports                                                                  0x0005E     30
+usart_rxc_isr                                                                     0x0007C    106

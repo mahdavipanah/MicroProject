@@ -1,0 +1,87 @@
+#ifndef __USART_H__
+#define __USART_H__
+
+
+void send_pattern(eeprom char [16][8][2], char);
+
+
+/*
+    Sends a byte via USART
+*/
+inline void send_usart(char data)
+{
+    while (UCSRA.UDRE == 0);
+    UDR = data;
+}
+
+
+/*
+    Sends the active pattern number to lightmicros
+
+    1****xxx0
+*/
+inline void send_active_pattern(char pattern_no)
+{
+    send_usart((pattern_no<<4) | (1<<7));
+}
+
+
+/*
+    Sends the edit pattern number to lightmicros
+
+    0x01****
+*/
+inline void send_edit_pattern(char pattern_no)
+{
+    send_usart(pattern_no | (1<<4));
+}
+
+
+/*
+    Sends test connection command to a lightmicro
+
+    0x10****
+*/
+inline void send_test_connection_lightmicro(char block_no)
+{
+    send_usart(block_no | (1<<5));
+}
+
+
+/*
+    Sends a write command for a lightmicro
+
+    0*00****
+*/
+inline void send_write_command(char byte_no, char block_no)
+{
+    send_usart((byte_no<<6) + block_no);
+}
+
+
+/*
+    Sends temperature range to tempmicro
+
+    0x11xxxx
+*/
+inline void send_range(char small, char large)
+{
+    send_usart(0x30);
+    send_usart(small);
+    send_usart(0x30);
+    send_usart(large);
+}
+
+/*
+    Sends a lightmicro number to tempmicro and then multiplexer selects
+    that lightmicro's txd and sends it to centeralmicro's rxd.
+
+    1****xxx1
+*/
+inline void select_lightmicro(char lightmicro_no)
+{
+    send_usart(0b10000001 | (lightmicro_no<<3));
+}
+
+
+#endif // __USART_H__
